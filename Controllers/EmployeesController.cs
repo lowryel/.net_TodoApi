@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using TodoApi.Services;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
+using TodoApi;
 
 namespace EmployeeControllerService.Controller;
 
@@ -17,17 +18,18 @@ public class EmployeeController : ControllerBase
     private readonly ApplicationDBContext dbContext;
 
     private readonly IMyKeyedServices _myServices; // demo cache service
-    
-    public EmployeeController(ApplicationDBContext db, IMyKeyedServices myServices)
+    private readonly JwtService _jwtService;
+    public EmployeeController(ApplicationDBContext db, IMyKeyedServices myServices, JwtService jwtService)
     {
         dbContext = db;
         _myServices = myServices;
+        _jwtService = jwtService;
     }
 
 
     // GET endpoint to retrieve all employees
     [HttpGet]
-    // [Authorize("read:messages")]
+    [Authorize]
     // [Route("employee/")]
     [Produces("application/json"), ValidatemailAddress("ellowry09@gmail.com")]
     public async Task<IActionResult> Get()
@@ -41,8 +43,9 @@ public class EmployeeController : ControllerBase
     [HttpGet("{employeeId}")]
     public async Task<Employee?> Get(Guid employeeId)
     {
-        return await dbContext.Employees.FindAsync(employeeId); 
+        return await dbContext.Employees.FindAsync(employeeId);
     }
+
 
     // POST endpoint to insert a new employee
     [HttpPost]
@@ -55,6 +58,8 @@ public class EmployeeController : ControllerBase
             Email = employeeDto.Email,
             Salary = employeeDto.Salary,
             Phone = employeeDto.Phone,
+            Position = employeeDto.Position,
+
         };
         await dbContext.Employees.AddAsync(employeeEntity);
         await dbContext.SaveChangesAsync();
@@ -75,6 +80,7 @@ public class EmployeeController : ControllerBase
         employee.Email = updateEmployeeDto.Email;
         employee.Salary = updateEmployeeDto.Salary;
         employee.Phone = updateEmployeeDto.Phone;
+        employee.Position = updateEmployeeDto.Position;
 
         await dbContext.SaveChangesAsync();
         return Ok(employee);
@@ -93,5 +99,40 @@ public class EmployeeController : ControllerBase
         await dbContext.SaveChangesAsync();
         return NoContent();
     }
+
+
+    [HttpPost("login")]
+    public async Task<IActionResult> LoginAsync(LoginModel model)
+    {
+        // retrieve userId using the email
+        var user = await dbContext.Employees
+            .FirstOrDefaultAsync(emp => emp.Email == model.Email);
+
+        if (user == null)
+        {
+            return NotFound("User not found");
+        }
+        Console.WriteLine(user.Name);
+
+        Guid userId = user.Id;
+        // Validate user credentials (replace with your actual authentication logic)
+        if (IsValidUser(model.Email))
+        {
+            var token = _jwtService.GenerateToken(userId.ToString(), model.Email);
+            return Ok(new { token });
+        }
+        return Unauthorized();
+    }
+
+    private bool IsValidUser(string email)
+    {
+        // Implement your user validation logic here
+        return true; // For demonstration purposes
+    }
+
 }
 
+public class LoginModel
+{
+    public required string Email { get; set; }
+}

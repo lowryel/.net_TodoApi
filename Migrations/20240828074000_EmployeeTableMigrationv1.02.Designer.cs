@@ -3,6 +3,7 @@ using System;
 using EmployeeAdminPortal.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TodoApi.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240828074000_EmployeeTableMigrationv1.02")]
+    partial class EmployeeTableMigrationv102
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,22 +24,6 @@ namespace TodoApi.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.Entity("Accountant", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("ACId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ACId");
-
-                    b.ToTable("Accountant", (string)null);
-                });
 
             modelBuilder.Entity("Employee", b =>
                 {
@@ -52,10 +39,10 @@ namespace TodoApi.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("Phone")
+                    b.Property<string>("Password")
                         .HasColumnType("text");
 
-                    b.Property<string>("Position")
+                    b.Property<string>("Phone")
                         .HasColumnType("text");
 
                     b.Property<decimal>("Salary")
@@ -67,17 +54,6 @@ namespace TodoApi.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Employee", (string)null);
-                });
-
-            modelBuilder.Entity("Accountant", b =>
-                {
-                    b.HasOne("Employee", "AC")
-                        .WithMany()
-                        .HasForeignKey("ACId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AC");
                 });
 #pragma warning restore 612, 618
         }
