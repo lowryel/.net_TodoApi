@@ -36,6 +36,5 @@
 - If you're using a specific environment:
 `dotnet ef database update --environment Production`
 
-Client secret=9Tnp6MhPgx0-W7tyCmSHfDSfjT0lxdr_-Cj_oz5OqRAwWyzh521sDUg4HCgOgeeu
 
 
