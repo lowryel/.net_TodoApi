@@ -22,20 +22,20 @@ namespace TodoApi.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Accountant", b =>
+            modelBuilder.Entity("Department", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("integer");
 
-                    b.Property<Guid>("ACId")
-                        .HasColumnType("uuid");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ACId");
-
-                    b.ToTable("Accountant", (string)null);
+                    b.ToTable("Departments");
                 });
 
             modelBuilder.Entity("Employee", b =>
@@ -43,6 +43,9 @@ namespace TodoApi.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -61,23 +64,29 @@ namespace TodoApi.Migrations
                     b.Property<decimal>("Salary")
                         .HasColumnType("numeric");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
                     b.ToTable("Employee", (string)null);
                 });
 
-            modelBuilder.Entity("Accountant", b =>
+            modelBuilder.Entity("Employee", b =>
                 {
-                    b.HasOne("Employee", "AC")
-                        .WithMany()
-                        .HasForeignKey("ACId")
+                    b.HasOne("Department", "Department")
+                        .WithMany("Employees")
+                        .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("AC");
+                    b.Navigation("Department");
+                });
+
+            modelBuilder.Entity("Department", b =>
+                {
+                    b.Navigation("Employees");
                 });
 #pragma warning restore 612, 618
         }

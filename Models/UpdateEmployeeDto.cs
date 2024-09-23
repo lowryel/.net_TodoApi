@@ -8,4 +8,7 @@ public record class UpdateEmployeeDto
     public string Email { get; set; } = null!;
     public string? Phone { get; set; }
     public decimal Salary { get; set; }
+    
+    public int DepartmentId { get; set; } // = Department.Id (referencing)
 }
+

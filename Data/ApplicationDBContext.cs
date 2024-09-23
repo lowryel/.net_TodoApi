@@ -10,7 +10,7 @@ namespace EmployeeAdminPortal.Data
         { 
         }
         public DbSet<Employee> Employees { get; set; } = null!;
-        public DbSet<Accountant> Accountants { get; set; } = null!;
+        public DbSet<Department> Departments { get; set; } = null!;
 
         // prevent index being created on the FK
         protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
@@ -21,10 +21,17 @@ namespace EmployeeAdminPortal.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Employee>()
-                .ToTable("Employee");
-                
-            modelBuilder.Entity<Accountant>()
-                .ToTable("Accountant");
+                .ToTable("Employee")
+                .HasOne(e => e.Department)
+                .WithMany(e => e.Employees)
+                .HasForeignKey(e => e.DepartmentId)
+                .IsRequired();
+
+            modelBuilder.Entity<Employee>()
+                .Property(e => e.Status)
+                .HasColumnType("varchar(32)")
+                .HasConversion<string>(v => v.ToString(), v => (EmpStatus)Enum.Parse(typeof(EmpStatus), v));
         }
     }
 }
+

@@ -7,6 +7,9 @@ using TodoApi.Services;
 using System.Linq;
 using Microsoft.AspNetCore.Authorization;
 using TodoApi;
+using Microsoft.Extensions.Caching.Distributed;
+using ServiceStack.Redis;
+using StackExchange.Redis;
 
 namespace EmployeeControllerService.Controller;
 
@@ -18,12 +21,20 @@ public class EmployeeController : ControllerBase
     private readonly ApplicationDBContext dbContext;
 
     private readonly IMyKeyedServices _myServices; // demo cache service
+
+
+    // static readonly ConnectionMultiplexer _redis = ConnectionMultiplexer.Connect("127.0.0.1:6379");
+    private readonly IDatabase _redis;
+
+
+
     private readonly JwtService _jwtService;
-    public EmployeeController(ApplicationDBContext db, IMyKeyedServices myServices, JwtService jwtService)
+    public EmployeeController(ApplicationDBContext db, IMyKeyedServices myServices, JwtService jwtService, IConnectionMultiplexer multiplexer)
     {
         dbContext = db;
         _myServices = myServices;
         _jwtService = jwtService;
+        _redis = multiplexer.GetDatabase();
     }
 
 
@@ -35,7 +46,13 @@ public class EmployeeController : ControllerBase
     public async Task<IActionResult> Get()
     {
         _myServices.CachePage("Get all Employees Service");
-        return Ok(await dbContext.Employees.ToListAsync());
+        var employees = await dbContext.Employees
+                        .Include(e => e.Department)
+                        .ToListAsync();
+        return employees == null
+                ? NotFound()
+                : Ok(employees);
+        // return Ok(await dbContext.Employees.ToListAsync());
     }
 
 
@@ -50,8 +67,12 @@ public class EmployeeController : ControllerBase
     // POST endpoint to insert a new employee
     [HttpPost]
     [Route("add/")]
-    public async Task Insert([FromBody] AddEmployeeDto employeeDto)
+    public async Task<IActionResult> CreateUser([FromBody] AddEmployeeDto employeeDto)
     {
+        if (employeeDto.Email == "")
+        {
+            return NotFound("Email is a required field");
+        }
         var employeeEntity = new Employee()
         {
             Name = employeeDto.Name,
@@ -59,11 +80,12 @@ public class EmployeeController : ControllerBase
             Salary = employeeDto.Salary,
             Phone = employeeDto.Phone,
             Position = employeeDto.Position,
-
+            // Status = (EmpStatus)employeeDto.Status,
+            DepartmentId = employeeDto.DepartmentId
         };
         await dbContext.Employees.AddAsync(employeeEntity);
         await dbContext.SaveChangesAsync();
-        Ok(employeeEntity);
+        return Ok(employeeEntity);
     }
 
 
@@ -81,6 +103,8 @@ public class EmployeeController : ControllerBase
         employee.Salary = updateEmployeeDto.Salary;
         employee.Phone = updateEmployeeDto.Phone;
         employee.Position = updateEmployeeDto.Position;
+        employee.DepartmentId = updateEmployeeDto.DepartmentId;
+        // employee.Status = (EmpStatus)updateEmployeeDto.Status;
 
         await dbContext.SaveChangesAsync();
         return Ok(employee);
@@ -104,6 +128,7 @@ public class EmployeeController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync(LoginModel model)
     {
+
         // retrieve userId using the email
         var user = await dbContext.Employees
             .FirstOrDefaultAsync(emp => emp.Email == model.Email);
@@ -119,6 +144,7 @@ public class EmployeeController : ControllerBase
         if (IsValidUser(model.Email))
         {
             var token = _jwtService.GenerateToken(userId.ToString(), model.Email);
+            _redis.StringGetSet("loginToken", token);
             return Ok(new { token });
         }
         return Unauthorized();

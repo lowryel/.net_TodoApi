@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json.Serialization;
 using EmployeeAdminPortal.Data;
 using EmployeeAdminPortal.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Npgsql;
+using ServiceStack.Redis;
+using StackExchange.Redis;
 using TodoApi;
 using TodoApi.Services;
 
@@ -19,24 +22,29 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
 builder.Services.AddDbContext<ApplicationDBContext>(
     optionsBuilder => optionsBuilder.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-// builder.Services.AddAuthorization();
 
-// builder.Services.AddAuthentication("Bearer")
-//     .AddJwtBearer("Bearer", options =>
+// setup redis cache
+// builder.Services.AddStackExchangeRedisCache(options =>
 // {
-//     options.Authority = builder.Configuration["Auth0:Domain"];
-//     options.Audience = builder.Configuration["Auth0:Audience"];
-//     options.TokenValidationParameters = new TokenValidationParameters
-//     {
-//         NameClaimType = ClaimTypes.NameIdentifier
-//     };
-//     options.RequireHttpsMetadata = false;
+//     options.Configuration = "localhost:6379";
+//     options.InstanceName = "sampleInstance";
 // });
 
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("Redis")!));
+
+// builder.Services.AddSingleton<IRedisClientsManager>(new RedisManagerPool("localhost:6379"));
+
+// JSON enum conversion service
+builder.Services.AddControllers()
+                .AddJsonOptions(options => 
+                {
+                    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
 
 var domain = $"https://{builder.Configuration["Auth0:Domain"]}/";
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

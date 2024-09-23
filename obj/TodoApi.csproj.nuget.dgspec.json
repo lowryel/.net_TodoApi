@@ -61,6 +61,14 @@
               "target": "Package",
               "version": "[8.0.7, )"
             },
+            "Microsoft.Extensions.Caching.StackExchangeRedis": {
+              "target": "Package",
+              "version": "[8.0.7, )"
+            },
+            "NRedisStack": {
+              "target": "Package",
+              "version": "[0.13.0, )"
+            },
             "Npgsql": {
               "target": "Package",
               "version": "[8.0.3, )"
@@ -68,6 +76,10 @@
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
               "version": "[8.0.4, )"
+            },
+            "ServiceStack.Redis": {
+              "target": "Package",
+              "version": "[8.4.0, )"
             },
             "Swashbuckle.AspNetCore": {
               "target": "Package",
@@ -97,7 +109,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/home/lowry/.dotnet/sdk/8.0.303/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/home/lowry/.dotnet/sdk/8.0.401/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

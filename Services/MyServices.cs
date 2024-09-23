@@ -17,12 +17,4 @@ public interface IMyKeyedServices
     void CachePage(string msg);
 }
 
-public class GenericList
-{
-    public void Add(int input){}
-}
 
-class TestGenericList
-{
-    
-}

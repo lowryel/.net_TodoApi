@@ -1,3 +1,5 @@
 .vscode/
 ./appsettings.json
 bin/
+
+.fake

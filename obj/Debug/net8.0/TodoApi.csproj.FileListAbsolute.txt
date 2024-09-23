@@ -114,3 +114,15 @@
 /home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/Microsoft.IdentityModel.Tokens.dll
 /home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/System.IdentityModel.Tokens.Jwt.dll
 /home/lowry/CSharp/demoAPI/TodoApi/obj/Debug/net8.0/TodoApi.sourcelink.json
+/home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/Microsoft.Extensions.Caching.StackExchangeRedis.dll
+/home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll
+/home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/Microsoft.Extensions.Logging.Abstractions.dll
+/home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/Microsoft.Extensions.Options.dll
+/home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/NetTopologySuite.dll
+/home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/NRedisStack.dll
+/home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/Pipelines.Sockets.Unofficial.dll
+/home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/ServiceStack.Common.dll
+/home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/ServiceStack.Interfaces.dll
+/home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/ServiceStack.Redis.dll
+/home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/ServiceStack.Text.dll
+/home/lowry/CSharp/demoAPI/TodoApi/bin/Debug/net8.0/StackExchange.Redis.dll
