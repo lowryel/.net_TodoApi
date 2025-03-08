@@ -16,7 +16,7 @@ public class JwtService
         _configuration = configuration;
         _logger = logger;
     }
-
+    
     public string GenerateToken(string userId, string email)
     {
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
@@ -35,7 +35,6 @@ public class JwtService
             expires: DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:DurationInMinutes"])),
             signingCredentials: credentials
         );
-        _logger.LogInformation("JWT token generated for user {UserId} {token}", userId, token);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
