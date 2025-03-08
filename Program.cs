@@ -77,11 +77,19 @@ builder.Services.AddAuthorization(options =>
 builder.Services.AddSingleton<IAuthorizationHandler, HasScopeHandler>();
 
 builder.Services.AddScoped<IMyKeyedServices, MyServices>();
+builder.Services.AddScoped<IEmployee, EmployeeService>();
 
 builder.Services.AddScoped<IMyDependency, MyDependency2>(); // Custom logger dependency injection
 
 // middlewares
 var app = builder.Build();
+
+// Run migrations on startup
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
+    dbContext.Database.Migrate();
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
