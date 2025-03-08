@@ -11,6 +11,8 @@ using Microsoft.Extensions.Caching.Distributed;
 using ServiceStack.Redis;
 using StackExchange.Redis;
 using TodoApi.Dtos;
+using ServiceStack;
+using RouteAttribute = Microsoft.AspNetCore.Mvc.RouteAttribute;
 
 namespace EmployeeControllerService.Controller;
 
@@ -83,6 +85,18 @@ public class EmployeeController : ControllerBase
         return NoContent();
     }
 
+    [HttpGet("query")]
+    public async Task<ActionResult<IEnumerable<GetEmployeeDto>>> Query([FromQuery] EmployeeFilter query)
+    {
+        var employees = await _employee.EmployeeFilter(query);
+
+        if (!employees.Any())
+        {
+            return NotFound("No employees match the specified criteria");
+        }
+
+        return Ok(employees);
+    }
 
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync(LoginModel model)

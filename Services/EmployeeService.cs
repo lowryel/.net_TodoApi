@@ -118,10 +118,8 @@ public class EmployeeService : IEmployee
         if (user == null)
         {
             _logger.LogWarning("Login attempt failed: User with email {Email} not found", model.Email);
-            return "User not found";
+            throw new InvalidOperationException("Invalid credentials");
         }
-
-        _logger.LogInformation("User found: {Email}", user.Email);
 
         // Validate user credentials
         if (IsValidUser(model.Email))
@@ -137,31 +135,75 @@ public class EmployeeService : IEmployee
 
     public async Task<int> UpdateEmployee(UpdateEmployeeDto updateEmployeeDto, Guid employeeId)
     {
-        // First check if department exists
-        // var departmentExists = await _dbContext.Departments.AnyAsync(d => d.Id == updateEmployeeDto.DepartmentId);
-        // if (!departmentExists)
-        // {
-        //     throw new InvalidOperationException($"Department with ID {updateEmployeeDto.DepartmentId} does not exist.");
-        // }
-
         var employee = await _dbContext.Employees.FindAsync(employeeId);
         if (employee == null)
         {
             throw new InvalidOperationException($"Employee with ID {employeeId} not found.");
         }
 
-        employee.Name = updateEmployeeDto.Name ?? employee.Name;
-        employee.Email = updateEmployeeDto.Email ?? employee.Email;
-        employee.Salary = updateEmployeeDto.Salary;
-        employee.Phone = updateEmployeeDto.Phone;
-        employee.Position = updateEmployeeDto.Position;
-        // employee.DepartmentId = updateEmployeeDto.DepartmentId;
+        // Only update fields that were specified (non-null in the DTO)
+        if (updateEmployeeDto.Name != null)
+            employee.Name = updateEmployeeDto.Name;
+
+        if (updateEmployeeDto.Email != null)
+            employee.Email = updateEmployeeDto.Email;
+
+        if (updateEmployeeDto.Phone != null)
+            employee.Phone = updateEmployeeDto.Phone;
+
+        if (updateEmployeeDto.Position != null)
+            employee.Position = updateEmployeeDto.Position;
+
+        // For value types like decimal, you need a different approach
+        // You could use a nullable decimal in your DTO
+        if (updateEmployeeDto.Salary != 0) // Or some other way to check if it was provided
+            employee.Salary = updateEmployeeDto.Salary;
+
+        // If you want to update DepartmentId, check it exists first
+        if (updateEmployeeDto.DepartmentId != 0)
+        {
+            var departmentExists = await _dbContext.Departments.AnyAsync(d => d.Id == updateEmployeeDto.DepartmentId);
+            if (!departmentExists)
+            {
+                throw new InvalidOperationException($"Department with ID {updateEmployeeDto.DepartmentId} does not exist.");
+            }
+            employee.DepartmentId = updateEmployeeDto.DepartmentId;
+        }
 
         return await _dbContext.SaveChangesAsync();
     }
 
+    public async Task<IEnumerable<GetEmployeeDto>> EmployeeFilter(EmployeeFilter query)
+    {
+        var employees = await _dbContext.Employees
+            .Include(e => e.Department)
+            .Where(e => (string.IsNullOrEmpty(query.Name) || EF.Functions.ILike(e.Name, $"%{query.Name}%")) &&
+                    (string.IsNullOrEmpty(query.Email) || EF.Functions.ILike(e.Email, $"%{query.Email}%")) &&
+                    (string.IsNullOrEmpty(query.Department) || EF.Functions.ILike(e.Department!.Name!, $"%{query.Department}%")) &&
+                    (string.IsNullOrEmpty(query.Position) || EF.Functions.ILike(e.Position!, $"%{query.Position}%")) &&
+                    (query.Status == null || e.Status == query.Status))
+            .ToListAsync();
+
+        return employees.Select(e => new GetEmployeeDto
+        {
+            Id = e.Id,
+            Name = e.Name,
+            Email = e.Email,
+            Department = e.Department!.Name,
+            DepartmentId = e.DepartmentId,
+            Phone = e.Phone,
+            Position = e.Position,
+            Status = e.Status,
+            Salary = e.Salary
+        }).ToList();
+    }
+
     private bool IsValidUser(string email)
     {
+        if (email == null)
+        {
+            throw new ArgumentNullException(nameof(email));
+        }
         // Implement your user validation logic here
         return true; // For demonstration purposes
     }
@@ -179,6 +221,8 @@ public interface IEmployee
     Task<int> UpdateEmployee(UpdateEmployeeDto employeeDto, Guid employeeId);
     Task<bool> DeleteEmployee(Guid employeeId);
     Task<string> LoginAsync(LoginModel model);
+    Task<IEnumerable<GetEmployeeDto>> EmployeeFilter(EmployeeFilter query);
+
 }
 
 
@@ -186,4 +230,21 @@ public interface IEmployee
 public class LoginModel
 {
     public required string Email { get; set; }
+}
+
+// create employee filter
+// filter by name, email, department, position, status
+
+public class EmployeeFilter
+{
+    [FromQuery]
+    public string? Name { get; set; }
+    [FromQuery]
+    public string? Email { get; set; }
+    [FromQuery]
+    public string? Department { get; set; }
+    [FromQuery]
+    public string? Position { get; set; }
+    [FromQuery]
+    public EmpStatus? Status { get; set; }
 }
