@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "IPODeL+sjwk=",
+  "dgSpecHash": "i6TuQo9BEW0=",
   "success": true,
   "projectFilePath": "/home/lowry/CSharp/demoAPI/TodoApi/TodoApi.csproj",
   "expectedPackageFiles": [
@@ -21,6 +21,7 @@
     "/home/lowry/.nuget/packages/microsoft.entityframeworkcore.design/8.0.8/microsoft.entityframeworkcore.design.8.0.8.nupkg.sha512",
     "/home/lowry/.nuget/packages/microsoft.entityframeworkcore.inmemory/8.0.7/microsoft.entityframeworkcore.inmemory.8.0.7.nupkg.sha512",
     "/home/lowry/.nuget/packages/microsoft.entityframeworkcore.relational/8.0.8/microsoft.entityframeworkcore.relational.8.0.8.nupkg.sha512",
+    "/home/lowry/.nuget/packages/microsoft.entityframeworkcore.tools/8.0.0/microsoft.entityframeworkcore.tools.8.0.0.nupkg.sha512",
     "/home/lowry/.nuget/packages/microsoft.extensions.apidescription.server/6.0.5/microsoft.extensions.apidescription.server.6.0.5.nupkg.sha512",
     "/home/lowry/.nuget/packages/microsoft.extensions.caching.abstractions/8.0.0/microsoft.extensions.caching.abstractions.8.0.0.nupkg.sha512",
     "/home/lowry/.nuget/packages/microsoft.extensions.caching.memory/8.0.0/microsoft.extensions.caching.memory.8.0.0.nupkg.sha512",

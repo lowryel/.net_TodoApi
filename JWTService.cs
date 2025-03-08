@@ -9,15 +9,17 @@ namespace TodoApi;
 public class JwtService
 {
     private readonly IConfiguration _configuration;
+    private readonly ILogger<JwtService> _logger;
 
-    public JwtService(IConfiguration configuration)
+    public JwtService(IConfiguration configuration, ILogger<JwtService> logger)
     {
         _configuration = configuration;
+        _logger = logger;
     }
 
     public string GenerateToken(string userId, string email)
     {
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("Jwt:Key"));
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new[]
@@ -33,6 +35,7 @@ public class JwtService
             expires: DateTime.Now.AddMinutes(Convert.ToDouble(_configuration["Jwt:DurationInMinutes"])),
             signingCredentials: credentials
         );
+        _logger.LogInformation("JWT token generated for user {UserId} {token}", userId, token);
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
